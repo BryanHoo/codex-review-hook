@@ -1,0 +1,77 @@
+#!/usr/bin/env python3
+import json
+import os
+import sys
+from pathlib import Path
+
+# Add project root to sys.path for hooks import
+project_root = Path(__file__).resolve().parents[1]
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+from lib.codexreview_state import load_state
+from lib.codexreview_decider import should_run_review
+from lib.codexreview_codeagent import resolve_agent_cmd
+from lib.codexreview_stop_runner import run_review_if_needed
+
+# Read event from stdin
+event = json.load(sys.stdin)
+
+# Check stop_hook_active - if true, exit immediately to prevent loop
+if event.get("stop_hook_active"):
+    sys.exit(0)
+
+# Check for session_id
+session_id = event.get("session_id")
+if not session_id:
+    sys.exit(0)
+
+# Calculate state path
+state_path = Path.home() / ".claude" / "state" / "codexreview" / f"{session_id}.json"
+
+# Load state
+state = load_state(str(state_path))
+
+# If no pending events, exit
+if state.get("pending", {}).get("events", 0) == 0:
+    sys.exit(0)
+
+# Make decision
+decision = should_run_review(state)
+
+# Print summary (single line,便于手工验收)
+# 格式: [run=Y/N] reason=<reason> score=<score> events=<n> files=<n> modules=<n> lines=<n>
+m = decision.get("metrics", {})
+print(f"[run={'Y' if decision['run'] else 'N'}] reason={decision['reason']} score={decision['score']} events={m.get('events',0)} files={m.get('files',0)} modules={m.get('modules',0)} lines={m.get('lines_touched_est',0)}")
+
+# If decision is to run, invoke the agent
+if decision['run']:
+    try:
+        agent_cmd = resolve_agent_cmd(project_root)
+    except RuntimeError as e:
+        print(str(e), file=sys.stderr)
+        sys.exit(0)
+
+    cwd = event.get('cwd', os.getcwd())
+    metrics = m
+
+    # Simplified prompt: just file paths and key info, let codeagent read files itself
+    files = state['pending'].get('files', [])
+    flags = state['pending'].get('flags', {})
+    parts = []
+    parts.append("请 review 以下代码变更：")
+    if flags.get('plan_docs'):
+        parts.append("- 方案/设计文档变更")
+    if flags.get('risk_files'):
+        parts.append("- 高风险配置/依赖变更")
+    parts.append(f"- 文件数: {len(files)}")
+    parts.append(f"- 评分: {decision['score']}")
+    parts.append(f"- 变更文件: {' '.join(files)}")
+    prompt = '\n'.join(parts)
+
+    result = run_review_if_needed(str(state_path), cwd, agent_cmd, prompt)
+
+    if result.get("success"):
+        print(f"[review_completed] files={metrics.get('files',0)} score={decision['score']}")
+
+sys.exit(0)
