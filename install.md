@@ -54,14 +54,16 @@ Windows：
 - 一般不需要 `chmod`。
 - 为保证可运行，建议在 hooks 的 `command` 里显式用 `python`/`py -3` 调用脚本（见下一步）。
 
-### Step 3：在目标项目写 hooks 配置
+### Step 3：写全局 hooks 配置
 
-在目标项目根目录编辑（或新建）：
+在用户目录的 Claude Code 全局配置里编辑（或新建）：
 
-- `<项目>/.claude/settings.json`（团队共享，通常会提交到仓库）
-- 或 `<项目>/.claude/settings.local.json`（个人本地，不建议提交）
+- macOS / Linux：`~/.claude/settings.json`
+- Windows：`C:\Users\<你的用户名>\.claude\settings.json`
 
-把以下 `"hooks"` 合并进去（不要覆盖你已有的其它配置项）：
+把以下 `"hooks"` 合并进去（不要覆盖你已有的其它配置项）。配置完成后，该 hooks 将对所有项目生效。
+
+> 如果你只想在某个项目启用，也可以把同样的 `"hooks"` 放到 `<项目>/.claude/settings.json` 或 `<项目>/.claude/settings.local.json`，覆盖全局配置。
 
 macOS / Linux（绝对路径）：
 
@@ -122,26 +124,6 @@ Windows（建议显式用 `python` 调用；JSON 里路径需要写双反斜杠�
   }
 }
 ```
-
----
-
-## 可选：指定 review agent 命令
-
-默认情况下，Stop hook 会优先使用本仓库 `codeagent/` 目录下随附的 `codeagent-wrapper-*`。
-
-如果你想强制指定（例如使用 PATH 里的 `codeagent`），可设置环境变量：
-
-```bash
-export CODEXREVIEW_AGENT_CMD="codeagent"
-```
-
-Windows（PowerShell 示例）：
-
-```powershell
-$env:CODEXREVIEW_AGENT_CMD="codeagent"
-```
-
----
 
 ## 验收要点（在 Claude Code 内）
 
