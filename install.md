@@ -8,30 +8,51 @@
 
 - 已安装 Claude Code（支持 hooks）。
 - 已安装 `python3`（建议 `3.10+`）。
+- 已安装 git（用于克隆仓库）。
 
 ---
 
 ## 全局安装（推荐）
 
-说明：本文档所有路径都使用“绝对路径示例”。请将示例中的 `/Users/<你的用户名>` 替换为你机器上家目录的绝对路径（例如 macOS 通常是 `/Users/<用户名>`，Linux 通常是 `/home/<用户名>`）。
+说明：本文档所有路径都使用“绝对路径示例”。请把示例中的用户名与路径替换为你机器上的真实绝对路径。
 
 ### Step 1：把本仓库放到固定目录
 
-推荐安装目录：`/Users/<你的用户名>/.claude/tools/codex-review-hook`
+推荐安装目录：
+
+- macOS：`/Users/<你的用户名>/.claude/tools/codex-review-hook`
+- Linux：`/home/<你的用户名>/.claude/tools/codex-review-hook`
+- Windows：`C:\Users\<你的用户名>\.claude\tools\codex-review-hook`
 
 用 git：
+
+macOS / Linux：
 
 ```bash
 mkdir -p /Users/<你的用户名>/.claude/tools
 git clone https://github.com/BryanHoo/codex-review-hook.git /Users/<你的用户名>/.claude/tools/codex-review-hook
 ```
 
+Windows（PowerShell 示例）：
+
+```powershell
+New-Item -ItemType Directory -Force "C:\Users\<你的用户名>\.claude\tools" | Out-Null
+git clone https://github.com/BryanHoo/codex-review-hook.git "C:\Users\<你的用户名>\.claude\tools\codex-review-hook"
+```
+
 ### Step 2：确保 hooks 脚本可执行
+
+macOS / Linux：
 
 ```bash
 chmod +x /Users/<你的用户名>/.claude/tools/codex-review-hook/bin/codexreview-record
 chmod +x /Users/<你的用户名>/.claude/tools/codex-review-hook/bin/codexreview-stop
 ```
+
+Windows：
+
+- 一般不需要 `chmod`。
+- 为保证可运行，建议在 hooks 的 `command` 里显式用 `python`/`py -3` 调用脚本（见下一步）。
 
 ### Step 3：在目标项目写 hooks 配置
 
@@ -41,6 +62,8 @@ chmod +x /Users/<你的用户名>/.claude/tools/codex-review-hook/bin/codexrevie
 - 或 `<项目>/.claude/settings.local.json`（个人本地，不建议提交）
 
 把以下 `"hooks"` 合并进去（不要覆盖你已有的其它配置项）：
+
+macOS / Linux（绝对路径）：
 
 ```json
 {
@@ -70,6 +93,36 @@ chmod +x /Users/<你的用户名>/.claude/tools/codex-review-hook/bin/codexrevie
 }
 ```
 
+Windows（建议显式用 `python` 调用；JSON 里路径需要写双反斜杠）：
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:\\\\Users\\\\<你的用户名>\\\\.claude\\\\tools\\\\codex-review-hook\\\\bin\\\\codexreview-record"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:\\\\Users\\\\<你的用户名>\\\\.claude\\\\tools\\\\codex-review-hook\\\\bin\\\\codexreview-stop"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
 ---
 
 ## 可选：指定 review agent 命令
@@ -80,6 +133,12 @@ chmod +x /Users/<你的用户名>/.claude/tools/codex-review-hook/bin/codexrevie
 
 ```bash
 export CODEXREVIEW_AGENT_CMD="codeagent"
+```
+
+Windows（PowerShell 示例）：
+
+```powershell
+$env:CODEXREVIEW_AGENT_CMD="codeagent"
 ```
 
 ---
