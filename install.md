@@ -1,4 +1,4 @@
-# CodexReview Hook 安装文档（仅指导，无脚本）
+# CodexReview Hook 安装文档
 
 目标：在 Claude Code 中启用 hooks，让本仓库的 `bin/codexreview-record` 与 `bin/codexreview-stop` 在合适时机自动运行。
 
@@ -12,7 +12,7 @@
 
 ---
 
-## 全局安装（推荐）
+## 全局安装
 
 说明：本文档所有路径都使用“绝对路径示例”。请把示例中的用户名与路径替换为你机器上的真实绝对路径。
 
