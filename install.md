@@ -28,7 +28,7 @@
 
 ```bash
 mkdir -p ~/.claude/tools
-git clone <仓库地址> ~/.claude/tools/codex-review-hook
+git clone git@github.com:BryanHoo/codex-review-hook.git ~/.claude/tools/codex-review-hook
 ```
 
 2) 直接拷贝（你已在本机有仓库时更方便）
@@ -94,7 +94,7 @@ chmod +x ~/.claude/tools/codex-review-hook/bin/codexreview-stop
 
 ```bash
 mkdir -p <项目>/tools
-git clone <仓库地址> <项目>/tools/codex-review-hook
+git clone git@github.com:BryanHoo/codex-review-hook.git <项目>/tools/codex-review-hook
 chmod +x <项目>/tools/codex-review-hook/bin/codexreview-record
 chmod +x <项目>/tools/codex-review-hook/bin/codexreview-stop
 ```
@@ -152,4 +152,3 @@ export CODEXREVIEW_AGENT_CMD="codeagent"
 - 修改以下任意一类文件：下一次 `Stop` 应触发 review：
   - `docs/plans/**` 或命中 design/spec/requirement/implementation/proposal/adr/rfc 的 `.md`
   - `package.json`、文件名含 `lock`、`.github/workflows/**`、`Dockerfile`
-
