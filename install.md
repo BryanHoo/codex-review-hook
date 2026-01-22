@@ -2,11 +2,6 @@
 
 目标：在 Claude Code 中启用 hooks，让本仓库的 `bin/codexreview-record` 与 `bin/codexreview-stop` 在合适时机自动运行。
 
-你可以选择：
-
-- 全局安装：一次安装，多项目复用（推荐）
-- 项目内安装：每个项目单独放一份
-
 ---
 
 ## 前置条件
@@ -16,33 +11,26 @@
 
 ---
 
-## 方案 A：全局安装（推荐）
+## 全局安装（推荐）
+
+说明：本文档所有路径都使用“绝对路径示例”。请将示例中的 `/Users/<你的用户名>` 替换为你机器上家目录的绝对路径（例如 macOS 通常是 `/Users/<用户名>`，Linux 通常是 `/home/<用户名>`）。
 
 ### Step 1：把本仓库放到固定目录
 
-推荐安装目录：`~/.claude/tools/codex-review-hook`
+推荐安装目录：`/Users/<你的用户名>/.claude/tools/codex-review-hook`
 
-做法二选一：
-
-1) 用 git（推荐）
+用 git：
 
 ```bash
-mkdir -p ~/.claude/tools
-git clone https://github.com/BryanHoo/codex-review-hook.git ~/.claude/tools/codex-review-hook
-```
-
-2) 直接拷贝（你已在本机有仓库时更方便）
-
-```bash
-mkdir -p ~/.claude/tools
-cp -R <本仓库路径> ~/.claude/tools/codex-review-hook
+mkdir -p /Users/<你的用户名>/.claude/tools
+git clone https://github.com/BryanHoo/codex-review-hook.git /Users/<你的用户名>/.claude/tools/codex-review-hook
 ```
 
 ### Step 2：确保 hooks 脚本可执行
 
 ```bash
-chmod +x ~/.claude/tools/codex-review-hook/bin/codexreview-record
-chmod +x ~/.claude/tools/codex-review-hook/bin/codexreview-stop
+chmod +x /Users/<你的用户名>/.claude/tools/codex-review-hook/bin/codexreview-record
+chmod +x /Users/<你的用户名>/.claude/tools/codex-review-hook/bin/codexreview-stop
 ```
 
 ### Step 3：在目标项目写 hooks 配置
@@ -63,7 +51,7 @@ chmod +x ~/.claude/tools/codex-review-hook/bin/codexreview-stop
         "hooks": [
           {
             "type": "command",
-            "command": "~/.claude/tools/codex-review-hook/bin/codexreview-record"
+            "command": "/Users/<你的用户名>/.claude/tools/codex-review-hook/bin/codexreview-record"
           }
         ]
       }
@@ -73,56 +61,7 @@ chmod +x ~/.claude/tools/codex-review-hook/bin/codexreview-stop
         "hooks": [
           {
             "type": "command",
-            "command": "~/.claude/tools/codex-review-hook/bin/codexreview-stop"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-> 注意：如果你的环境不支持 `~` 展开（取决于 Claude Code 运行 shell 的方式），请改用绝对路径（例如 `/Users/<你>/...`）。
-
----
-
-## 方案 B：项目内安装（可选）
-
-### Step 1：把本仓库放进项目
-
-例如放到：`<项目>/tools/codex-review-hook`
-
-```bash
-mkdir -p <项目>/tools
-git clone https://github.com/BryanHoo/codex-review-hook.git <项目>/tools/codex-review-hook
-chmod +x <项目>/tools/codex-review-hook/bin/codexreview-record
-chmod +x <项目>/tools/codex-review-hook/bin/codexreview-stop
-```
-
-### Step 2：在项目写 hooks 配置（使用相对路径）
-
-编辑（或新建）：`<项目>/.claude/settings.json` 或 `<项目>/.claude/settings.local.json`：
-
-```json
-{
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "tools/codex-review-hook/bin/codexreview-record"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "tools/codex-review-hook/bin/codexreview-stop"
+            "command": "/Users/<你的用户名>/.claude/tools/codex-review-hook/bin/codexreview-stop"
           }
         ]
       }
