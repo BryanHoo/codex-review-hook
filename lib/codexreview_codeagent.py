@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import platform
 import shlex
@@ -75,6 +76,18 @@ def resolve_agent_cmd(project_root: Path, env: Mapping[str, str] | None = None) 
 
     override = env.get("CODEXREVIEW_AGENT_CMD")
     if override:
+        s = override.strip()
+        # 允许用 JSON 数组指定命令，避免 Windows 路径/空格/引号导致的解析差异：
+        # 例如：["C:\\Program Files\\codeagent\\codeagent.exe","--flag"]
+        if s.startswith("["):
+            try:
+                parsed = json.loads(s)
+                if isinstance(parsed, list) and all(isinstance(x, str) for x in parsed) and parsed:
+                    return parsed
+            except Exception:
+                pass
+
+        # 兼容传统写法（需要在含空格路径时自行加引号）
         return shlex.split(override)
 
     packaged = resolve_packaged_binary(project_root)

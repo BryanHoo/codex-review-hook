@@ -13,6 +13,17 @@ class TestCodeagentResolver(unittest.TestCase):
             cmd = resolve_agent_cmd(Path("/tmp/does-not-matter"))
             self.assertEqual(cmd, ["myagent", "--flag"])
 
+    def test_env_override_json_array(self):
+        from lib.codexreview_codeagent import resolve_agent_cmd
+
+        with patch.dict(
+            os.environ,
+            {"CODEXREVIEW_AGENT_CMD": '["/opt/codeagent/bin/codeagent","--flag"]'},
+            clear=False,
+        ):
+            cmd = resolve_agent_cmd(Path("/tmp/does-not-matter"))
+            self.assertEqual(cmd, ["/opt/codeagent/bin/codeagent", "--flag"])
+
     def test_packaged_binary_selected_by_platform(self):
         from lib.codexreview_codeagent import resolve_agent_cmd
 

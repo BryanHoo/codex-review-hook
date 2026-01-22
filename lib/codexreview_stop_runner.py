@@ -4,7 +4,7 @@ import datetime
 import subprocess
 from typing import Dict
 
-from lib.codexreview_state import load_state, save_state
+from lib.codexreview_state import DEFAULT_STATE, load_state, save_state
 
 
 def run_review_if_needed(state_path: str, cwd: str, agent_cmd: list, prompt: str) -> Dict:
@@ -29,13 +29,8 @@ def run_review_if_needed(state_path: str, cwd: str, agent_cmd: list, prompt: str
     if result.returncode == 0:
         # 成功：清空 pending，更新 last_review_at
         state = load_state(state_path)
-        state["pending"] = {
-            "events": 0,
-            "files": [],
-            "modules": [],
-            "lines_touched_est": 0,
-            "flags": {"plan_docs": False, "risk_files": False},
-        }
+        # 保持与 DEFAULT_STATE 的字段一致，避免后续读取出现字段缺失/口径不一致
+        state["pending"] = dict(DEFAULT_STATE["pending"])
         state["meta"]["last_review_at"] = datetime.datetime.now().isoformat()
         save_state(state_path, state)
 
