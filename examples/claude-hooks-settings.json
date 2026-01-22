@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bin/codexreview-record"
+            "command": "python3 bin/codexreview-record"
           }
         ]
       }
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bin/codexreview-stop"
+            "command": "python3 bin/codexreview-stop"
           }
         ]
       }
